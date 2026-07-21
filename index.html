@@ -60,6 +60,16 @@
       -webkit-font-smoothing: antialiased;
     }
 
+    /* Fixed-height boxes (sized by script to the tallest font) so the layout
+       doesn't shift vertically as the cycle moves between fonts of different
+       heights — each element just re-centres inside its own box. */
+    .titlebox, .mailbox {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+    }
+
     h1 {
       margin: 0;
       font-weight: 400;
@@ -73,6 +83,7 @@
       color: #fff;
       font-family: 'Silkscreen', monospace;
       font-size: clamp(13px, 2.2vw, 18px);
+      line-height: 1;
       text-decoration: underline;
       text-underline-offset: 4px;
       text-decoration-thickness: 1px;
@@ -92,8 +103,8 @@
   </style>
 </head>
 <body>
-  <h1 id="title">cultural/digital/insight</h1>
-  <a href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a>
+  <div class="titlebox" id="titlebox"><h1 id="title">cultural/digital/insight</h1></div>
+  <div class="mailbox" id="mailbox"><a id="mail" href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a></div>
   <span id="measure" aria-hidden="true">cultural/digital/insight</span>
 
   <script>
@@ -104,22 +115,41 @@
       "'Tourney', sans-serif",
     ];
     const title = document.getElementById('title');
+    const titlebox = document.getElementById('titlebox');
+    const mail = document.getElementById('mail');
+    const mailbox = document.getElementById('mailbox');
     const measure = document.getElementById('measure');
     const sizes = [];   // per-font font-size (px) that makes the text 90% of viewport width
 
     function fit() {
       const target = window.innerWidth * 0.9;
+      let titleH = 0;
       FONTS.forEach((font, i) => {
         measure.style.fontFamily = font;
-        const w = measure.getBoundingClientRect().width;
-        sizes[i] = w > 0 ? 100 * target / w : 16;
+        measure.style.fontSize = '100px';
+        measure.textContent = title.textContent;
+        const r = measure.getBoundingClientRect();
+        sizes[i] = r.width > 0 ? 100 * target / r.width : 16;
+        titleH = Math.max(titleH, r.height * sizes[i] / 100);
       });
+      // Boxes take the tallest font's height so the layout never shifts.
+      titlebox.style.height = Math.ceil(titleH * 1.1) + 'px';
+      let mailH = 0;
+      const mailSize = parseFloat(getComputedStyle(mail).fontSize);
+      FONTS.forEach((font) => {
+        measure.style.fontFamily = font;
+        measure.style.fontSize = mailSize + 'px';
+        measure.textContent = mail.textContent;
+        mailH = Math.max(mailH, measure.getBoundingClientRect().height);
+      });
+      mailbox.style.height = Math.ceil(mailH * 1.4) + 'px';
     }
 
     let current = 0;
     function show(i) {
       title.style.fontFamily = FONTS[i];
       title.style.fontSize = sizes[i] + 'px';
+      mail.style.fontFamily = FONTS[(i + FONTS.length - 1) % FONTS.length];   // one step behind the title
     }
 
     document.fonts.ready.then(() => {

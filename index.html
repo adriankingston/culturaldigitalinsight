@@ -152,7 +152,12 @@
       mail.style.fontFamily = FONTS[(i + FONTS.length - 1) % FONTS.length];   // one step behind the title
     }
 
-    document.fonts.ready.then(() => {
+    // Explicitly load every face before measuring — document.fonts.ready alone
+    // can resolve before lazily-loaded fonts start downloading, which would
+    // make fit() measure the fallback fonts and compute the wrong sizes.
+    Promise.all(
+      FONTS.map((f) => document.fonts.load('100px ' + f, title.textContent))
+    ).catch(() => {}).then(() => {
       fit();
       show(0);
       title.classList.add('ready');
@@ -163,6 +168,9 @@
         }, 1000);
       }
     });
+
+    // Safety net: if any face arrives after first paint, re-measure.
+    document.fonts.addEventListener('loadingdone', () => { fit(); show(current); });
 
     addEventListener('resize', () => { fit(); show(current); });
   </script>

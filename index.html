@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cultural/digital/insight</title>
+  <meta name="description" content="cultural/digital/insight" />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Self-hosted fonts: the four display faces the wordmark cycles through. -->
+  <link rel="preload" href="/fonts/silkscreen-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/bitcount-single-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/atomic-age-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/tourney-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <style>
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('/fonts/silkscreen-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Bitcount Single';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('/fonts/bitcount-single-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Atomic Age';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('/fonts/atomic-age-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Tourney';
+      font-style: normal;
+      font-weight: 600;
+      font-display: block;
+      src: url('/fonts/tourney-latin.woff2') format('woff2');
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6vh;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: 400;
+      white-space: nowrap;
+      line-height: 1.1;
+      visibility: hidden;              /* shown by script once fonts are measured */
+    }
+    h1.ready { visibility: visible; }
+
+    a {
+      color: #fff;
+      font-family: 'Silkscreen', monospace;
+      font-size: clamp(13px, 2.2vw, 18px);
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+    }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+
+    /* Off-screen measuring element: same text, one font at a time. */
+    #measure {
+      position: absolute;
+      left: -9999px;
+      top: 0;
+      font-size: 100px;
+      white-space: nowrap;
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">cultural/digital/insight</h1>
+  <a href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a>
+  <span id="measure" aria-hidden="true">cultural/digital/insight</span>
+
+  <script>
+    const FONTS = [
+      "'Silkscreen', monospace",
+      "'Bitcount Single', monospace",
+      "'Atomic Age', serif",
+      "'Tourney', sans-serif",
+    ];
+    const title = document.getElementById('title');
+    const measure = document.getElementById('measure');
+    const sizes = [];   // per-font font-size (px) that makes the text 90% of viewport width
+
+    function fit() {
+      const target = window.innerWidth * 0.9;
+      FONTS.forEach((font, i) => {
+        measure.style.fontFamily = font;
+        const w = measure.getBoundingClientRect().width;
+        sizes[i] = w > 0 ? 100 * target / w : 16;
+      });
+    }
+
+    let current = 0;
+    function show(i) {
+      title.style.fontFamily = FONTS[i];
+      title.style.fontSize = sizes[i] + 'px';
+    }
+
+    document.fonts.ready.then(() => {
+      fit();
+      show(0);
+      title.classList.add('ready');
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        setInterval(() => {
+          current = (current + 1) % FONTS.length;
+          show(current);
+        }, 1000);
+      }
+    });
+
+    addEventListener('resize', () => { fit(); show(current); });
+  </script>
+</body>
+</html>

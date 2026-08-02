@@ -1,0 +1,84 @@
+---
+// Shared shell for every page: head boilerplate, self-hosted fonts, and the
+// site-wide black/white styling. Pages supply their own content and styles.
+interface Props {
+  title: string;
+  description: string;
+}
+const { title, description } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Self-hosted fonts: the four display faces of the brand. -->
+  <link rel="preload" href="/fonts/silkscreen-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/bitcount-single-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/atomic-age-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/tourney-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+  <style is:global>
+    @font-face {
+      font-family: 'Silkscreen';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('/fonts/silkscreen-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Bitcount Single';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('/fonts/bitcount-single-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Atomic Age';
+      font-style: normal;
+      font-weight: 400;
+      font-display: block;
+      src: url('/fonts/atomic-age-latin.woff2') format('woff2');
+    }
+    @font-face {
+      font-family: 'Tourney';
+      font-style: normal;
+      font-weight: 600;
+      font-display: block;
+      src: url('/fonts/tourney-latin.woff2') format('woff2');
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: #fff;
+      font-family: 'Silkscreen', monospace;
+      font-size: clamp(13px, 2.2vw, 18px);
+      line-height: 1;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+      text-decoration-thickness: 1px;
+    }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+  </style>
+</head>
+<body>
+  <slot />
+</body>
+</html>

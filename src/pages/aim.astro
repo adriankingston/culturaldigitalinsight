@@ -9,7 +9,7 @@ import Base from '../layouts/Base.astro';
 >
   <main class="aim">
     <div class="aimtitlebox" id="aimtitlebox"><h1 id="aimtitle">AIM</h1></div>
-    <p class="slashes">audience/impact/model</p>
+    <h2 class="slashes">audience/impact/model</h2>
     <p class="blurb">A framework for setting goals, designing and evaluating
     experiences that create meaningful connection, learning and impact.</p>
     <p class="soon">MORE SOON</p>
@@ -18,7 +18,6 @@ import Base from '../layouts/Base.astro';
       <a href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a>
     </nav>
   </main>
-  <span id="aimmeasure" aria-hidden="true">AIM</span>
 </Base>
 
 <style>
@@ -51,20 +50,11 @@ import Base from '../layouts/Base.astro';
   }
   h1:global(.ready) { visibility: visible; }
 
-  /* Off-screen measuring element: same text, one font at a time. */
-  #aimmeasure {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    font-size: 100px;
-    white-space: nowrap;
-    visibility: hidden;
-  }
-
   .slashes {
     margin: 0;
     font-family: 'Silkscreen', monospace;
-    font-size: clamp(14px, 2.6vw, 20px);
+    font-weight: 400;
+    font-size: clamp(21px, 3.9vw, 30px);
     letter-spacing: 1px;
   }
 
@@ -99,27 +89,37 @@ import Base from '../layouts/Base.astro';
   ];
   const title = document.getElementById('aimtitle');
   const titlebox = document.getElementById('aimtitlebox');
-  const measure = document.getElementById('aimmeasure');
-  const sizes = [];   // per-font font-size (px) that makes "AIM" hit the target width
+  const ctx = document.createElement('canvas').getContext('2d');
+  const sizes = [];    // per-font font-size (px) that makes the INK of "AIM" hit the target width
+  const shifts = [];   // per-font translateX (px) that centres the ink, not the layout box
 
+  // Fonts carry different side bearings (built-in space around the glyphs), so
+  // fitting/centring by layout width still lets the drawn letters wander
+  // horizontally. Canvas ink metrics measure the actual drawn edges instead.
   function fit() {
     // "AIM" is only three glyphs, so 90% of the viewport would be vast on a
     // desktop — cap the target so it matches the page's original scale.
     const target = Math.min(window.innerWidth * 0.9, 520);
     let titleH = 0;
     FONTS.forEach((font, i) => {
-      measure.style.fontFamily = font;
-      const r = measure.getBoundingClientRect();
-      sizes[i] = r.width > 0 ? 100 * target / r.width : 16;
-      titleH = Math.max(titleH, r.height * sizes[i] / 100);
+      ctx.font = '100px ' + font;
+      const m = ctx.measureText(title.textContent);
+      const inkW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
+      sizes[i] = inkW > 0 ? 100 * target / inkW : 16;
+      // Offset between the ink's centre and the layout box's centre, scaled.
+      const inkCentre = (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
+      shifts[i] = -(inkCentre - m.width / 2) * sizes[i] / 100;
+      titleH = Math.max(titleH, sizes[i] * 1.1,
+        (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) * sizes[i] / 100);
     });
-    titlebox.style.height = Math.ceil(titleH * 1.1) + 'px';
+    titlebox.style.height = Math.ceil(titleH * 1.05) + 'px';
   }
 
   let current = 0;
   function show(i) {
     title.style.fontFamily = FONTS[i];
     title.style.fontSize = sizes[i] + 'px';
+    title.style.transform = 'translateX(' + shifts[i].toFixed(1) + 'px)';
   }
 
   // Load every face before measuring (document.fonts.ready alone can resolve

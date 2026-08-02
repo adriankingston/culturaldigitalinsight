@@ -8,7 +8,7 @@ import Base from '../layouts/Base.astro';
   description="AIM, the Audience Impact Model — a framework for setting goals, designing and evaluating experiences that create meaningful connection, learning and impact."
 >
   <main class="aim">
-    <h1>AIM</h1>
+    <div class="aimtitlebox" id="aimtitlebox"><h1 id="aimtitle">AIM</h1></div>
     <p class="slashes">audience/impact/model</p>
     <p class="blurb">A framework for setting goals, designing and evaluating
     experiences that create meaningful connection, learning and impact.</p>
@@ -18,6 +18,7 @@ import Base from '../layouts/Base.astro';
       <a href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a>
     </nav>
   </main>
+  <span id="aimmeasure" aria-hidden="true">AIM</span>
 </Base>
 
 <style>
@@ -31,12 +32,33 @@ import Base from '../layouts/Base.astro';
     padding: 32px 24px;
   }
 
+  /* Fixed-height box (sized by script to the tallest font) so the content
+     below doesn't shift as the cycle moves between fonts — same technique
+     as the homepage wordmark. */
+  .aimtitlebox {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
   h1 {
     margin: 0;
-    font-family: 'Tourney', sans-serif;
-    font-weight: 600;
-    font-size: clamp(90px, 24vw, 220px);
-    line-height: 1;
+    font-weight: 400;
+    white-space: nowrap;
+    line-height: 1.1;
+    visibility: hidden;              /* shown by script once fonts are measured */
+  }
+  h1:global(.ready) { visibility: visible; }
+
+  /* Off-screen measuring element: same text, one font at a time. */
+  #aimmeasure {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    font-size: 100px;
+    white-space: nowrap;
+    visibility: hidden;
   }
 
   .slashes {
@@ -67,3 +89,55 @@ import Base from '../layouts/Base.astro';
     gap: 20px;
   }
 </style>
+
+<script is:inline>
+  const FONTS = [
+    "'Silkscreen', monospace",
+    "'Bitcount Single', monospace",
+    "'Atomic Age', serif",
+    "'Tourney', sans-serif",
+  ];
+  const title = document.getElementById('aimtitle');
+  const titlebox = document.getElementById('aimtitlebox');
+  const measure = document.getElementById('aimmeasure');
+  const sizes = [];   // per-font font-size (px) that makes "AIM" hit the target width
+
+  function fit() {
+    // "AIM" is only three glyphs, so 90% of the viewport would be vast on a
+    // desktop — cap the target so it matches the page's original scale.
+    const target = Math.min(window.innerWidth * 0.9, 520);
+    let titleH = 0;
+    FONTS.forEach((font, i) => {
+      measure.style.fontFamily = font;
+      const r = measure.getBoundingClientRect();
+      sizes[i] = r.width > 0 ? 100 * target / r.width : 16;
+      titleH = Math.max(titleH, r.height * sizes[i] / 100);
+    });
+    titlebox.style.height = Math.ceil(titleH * 1.1) + 'px';
+  }
+
+  let current = 0;
+  function show(i) {
+    title.style.fontFamily = FONTS[i];
+    title.style.fontSize = sizes[i] + 'px';
+  }
+
+  // Load every face before measuring (document.fonts.ready alone can resolve
+  // before lazily-loaded fonts start downloading).
+  Promise.all(
+    FONTS.map((f) => document.fonts.load('100px ' + f, title.textContent))
+  ).catch(() => {}).then(() => {
+    fit();
+    show(0);
+    title.classList.add('ready');
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setInterval(() => {
+        current = (current + 1) % FONTS.length;
+        show(current);
+      }, 1000);
+    }
+  });
+
+  document.fonts.addEventListener('loadingdone', () => { fit(); show(current); });
+  addEventListener('resize', () => { fit(); show(current); });
+</script>

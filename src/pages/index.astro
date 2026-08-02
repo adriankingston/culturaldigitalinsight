@@ -9,7 +9,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>cultural/digital/insight</title>
-  <meta name="description" content="cultural/digital/insight" />
+  <meta name="description" content="C/D/I — a consultancy helping organisations navigate audiences, community, impact and evaluation in relation to cultural digital experiences." />
 
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 
@@ -53,17 +53,42 @@
     html, body { height: 100%; }
     body {
       margin: 0;
+      background: #000;
+      color: #fff;
+      text-align: center;
+      font-family: system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Full-viewport hero: the cycling wordmark + email, centred as before. */
+    .hero {
       min-height: 100dvh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       gap: 6vh;
-      background: #000;
-      color: #fff;
-      text-align: center;
-      -webkit-font-smoothing: antialiased;
     }
+
+    .about {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 24px 14vh;
+    }
+    .about h2 {
+      margin: 0 0 32px;
+      font-family: 'Silkscreen', monospace;
+      font-weight: 400;
+      font-size: clamp(15px, 2.4vw, 20px);
+      letter-spacing: 2px;
+    }
+    .about p {
+      margin: 0 0 20px;
+      text-align: left;
+      font-size: 17px;
+      line-height: 1.65;
+    }
+    .about .linkedin { margin: 36px 0 0; }
 
     /* Fixed-height boxes (sized by script to the tallest font) so the layout
        doesn't shift vertically as the cycle moves between fonts of different
@@ -108,8 +133,24 @@
   </style>
 </head>
 <body>
-  <div class="titlebox" id="titlebox"><h1 id="title">cultural/digital/insight</h1></div>
-  <div class="mailbox" id="mailbox"><a id="mail" href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a></div>
+  <section class="hero">
+    <div class="titlebox" id="titlebox"><h1 id="title">cultural/digital/insight</h1></div>
+    <div class="mailbox" id="mailbox"><a id="mail" href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a></div>
+  </section>
+
+  <section class="about">
+    <h2>ABOUT C/D/I</h2>
+    <p>C/D/I is a consultancy to help organisations understand how to navigate
+    audiences, community, impact and evaluation in relation to cultural digital
+    experiences.</p>
+    <p>Adrian Kingston has over 25 years working with national cultural
+    organisations here in Aotearoa, and advising internationally. The creator of
+    the Audience Impact Model (AIM), a framework for setting goals, designing and
+    evaluating experiences that create meaningful connection, learning and impact
+    for different audiences and communities.</p>
+    <p class="linkedin"><a href="https://www.linkedin.com/in/adriankingston/" rel="noopener">linkedin.com/in/adriankingston</a></p>
+  </section>
+
   <span id="measure" aria-hidden="true">cultural/digital/insight</span>
 
   <script is:inline>

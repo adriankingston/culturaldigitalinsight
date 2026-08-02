@@ -39,6 +39,7 @@ import Base from '../layouts/Base.astro';
     align-items: center;
     justify-content: center;
     width: 100%;
+    overflow-x: clip;   /* wide side-bearings must never trigger page scroll */
   }
 
   h1 {
@@ -90,36 +91,46 @@ import Base from '../layouts/Base.astro';
   const title = document.getElementById('aimtitle');
   const titlebox = document.getElementById('aimtitlebox');
   const ctx = document.createElement('canvas').getContext('2d');
-  const sizes = [];    // per-font font-size (px) that makes the INK of "AIM" hit the target width
-  const shifts = [];   // per-font translateX (px) that centres the ink, not the layout box
+  const sizes = [];     // per-font font-size (px) that makes the INK of "AIM" hit the target width
+  const shiftsX = [];   // per-font translateX (px) that centres the ink, not the layout box
+  const shiftsY = [];   // per-font translateY (px) that centres the ink vertically too
 
-  // Fonts carry different side bearings (built-in space around the glyphs), so
-  // fitting/centring by layout width still lets the drawn letters wander
-  // horizontally. Canvas ink metrics measure the actual drawn edges instead.
+  // Fonts carry different side bearings and baseline positions (built-in space
+  // around the glyphs), so fitting/centring by layout box still lets the drawn
+  // letters wander. Canvas ink metrics measure the actual drawn edges instead,
+  // and both axes get a per-font correction.
   function fit() {
-    // "AIM" is only three glyphs, so 90% of the viewport would be vast on a
-    // desktop — cap the target so it matches the page's original scale.
-    const target = Math.min(window.innerWidth * 0.9, 520);
+    // "AIM" is only three glyphs — cap the target well below the viewport so
+    // side bearings can't push the layout box past the page edge on mobile.
+    const target = Math.min(window.innerWidth * 0.8, 440);
     let titleH = 0;
     FONTS.forEach((font, i) => {
       ctx.font = '100px ' + font;
       const m = ctx.measureText(title.textContent);
       const inkW = m.actualBoundingBoxLeft + m.actualBoundingBoxRight;
       sizes[i] = inkW > 0 ? 100 * target / inkW : 16;
-      // Offset between the ink's centre and the layout box's centre, scaled.
-      const inkCentre = (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
-      shifts[i] = -(inkCentre - m.width / 2) * sizes[i] / 100;
-      titleH = Math.max(titleH, sizes[i] * 1.1,
-        (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) * sizes[i] / 100);
+      const s = sizes[i] / 100;
+      // Horizontal: offset between the ink's centre and the layout box's centre.
+      const inkCentreX = (m.actualBoundingBoxRight - m.actualBoundingBoxLeft) / 2;
+      shiftsX[i] = -(inkCentreX - m.width / 2) * s;
+      // Vertical: where the ink's centre sits inside the line box (half-leading
+      // model puts the baseline via the font's bounding-box metrics).
+      const lineH = sizes[i] * 1.1;   /* matches the h1's line-height */
+      const fbA = (m.fontBoundingBoxAscent ?? m.actualBoundingBoxAscent) * s;
+      const fbD = (m.fontBoundingBoxDescent ?? m.actualBoundingBoxDescent) * s;
+      const baseline = (lineH - (fbA + fbD)) / 2 + fbA;
+      const inkCentreY = baseline + (m.actualBoundingBoxDescent - m.actualBoundingBoxAscent) * s / 2;
+      shiftsY[i] = lineH / 2 - inkCentreY;
+      titleH = Math.max(titleH, (m.actualBoundingBoxAscent + m.actualBoundingBoxDescent) * s);
     });
-    titlebox.style.height = Math.ceil(titleH * 1.05) + 'px';
+    titlebox.style.height = Math.ceil(titleH * 1.08) + 'px';
   }
 
   let current = 0;
   function show(i) {
     title.style.fontFamily = FONTS[i];
     title.style.fontSize = sizes[i] + 'px';
-    title.style.transform = 'translateX(' + shifts[i].toFixed(1) + 'px)';
+    title.style.transform = 'translate(' + shiftsX[i].toFixed(1) + 'px,' + shiftsY[i].toFixed(1) + 'px)';
   }
 
   // Load every face before measuring (document.fonts.ready alone can resolve

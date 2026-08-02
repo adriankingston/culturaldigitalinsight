@@ -1,3 +1,8 @@
+---
+// Holding page: white cycling-font wordmark on black.
+// Styles and script are is:inline — Astro serves them untouched.
+---
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,7 +19,7 @@
   <link rel="preload" href="/fonts/atomic-age-latin.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/fonts/tourney-latin.woff2" as="font" type="font/woff2" crossorigin />
 
-  <style>
+  <style is:inline>
     @font-face {
       font-family: 'Silkscreen';
       font-style: normal;
@@ -107,7 +112,7 @@
   <div class="mailbox" id="mailbox"><a id="mail" href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a></div>
   <span id="measure" aria-hidden="true">cultural/digital/insight</span>
 
-  <script>
+  <script is:inline>
     const FONTS = [
       "'Silkscreen', monospace",
       "'Bitcount Single', monospace",

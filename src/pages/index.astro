@@ -8,12 +8,12 @@ import Base from '../layouts/Base.astro';
   title="cultural/digital/insight"
   description="C/D/I — a consultancy helping organisations navigate audiences, community, impact and evaluation in relation to cultural digital experiences."
 >
-  <section class="hero">
+  <section class="hero" id="hero">
     <div class="titlebox" id="titlebox"><h1 id="title">cultural/digital/insight</h1></div>
     <div class="mailbox" id="mailbox"><a id="mail" href="mailto:info@culturaldigitalinsight.nz">info@culturaldigitalinsight.nz</a></div>
   </section>
 
-  <section class="about">
+  <section class="about" id="about">
     <h2>ABOUT C/D/I</h2>
     <p>C/D/I is a consultancy to help organisations understand how to navigate
     audiences, community, impact and evaluation in relation to cultural digital
@@ -140,6 +140,12 @@ import Base from '../layouts/Base.astro';
       mailH = Math.max(mailH, measure.getBoundingClientRect().height);
     });
     mailbox.style.height = Math.ceil(mailH * 1.4) + 'px';
+    // Pull the About section up by half the empty space the centred hero
+    // leaves below the email, halving the visual gap between the two.
+    const hero = document.getElementById('hero');
+    const about = document.getElementById('about');
+    const emptyBelow = hero.offsetHeight - (mailbox.offsetTop + mailbox.offsetHeight);
+    about.style.marginTop = (-Math.max(0, emptyBelow) / 2).toFixed(0) + 'px';
   }
 
   let current = 0;

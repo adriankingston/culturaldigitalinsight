@@ -11,7 +11,7 @@ import Base from '../layouts/Base.astro';
     <h1>about/privacy</h1>
 
     <section>
-      <h2>ABOUT C/D/I</h2>
+      <h2 class="h-about">ABOUT C/D/I</h2>
       <p>C/D/I is a consultancy to help organisations understand how to navigate
       audiences, community, impact and evaluation in relation to cultural digital
       experiences.</p>
@@ -23,7 +23,7 @@ import Base from '../layouts/Base.astro';
     </section>
 
     <section>
-      <h2>PRIVACY</h2>
+      <h2 class="h-privacy">PRIVACY</h2>
       <p>This site uses Google Analytics to understand how it's used — pages
       viewed, rough location, and device type. That data is aggregated and
       anonymous; it isn't used for advertising and isn't shared.</p>
@@ -46,21 +46,24 @@ import Base from '../layouts/Base.astro';
     padding: 14vh 24px;
   }
 
+  /* Each header takes one of the hero faces (links keep Silkscreen, so all
+     four brand fonts appear on the page). */
   h1 {
     margin: 0 0 8vh;
-    font-family: 'Silkscreen', monospace;
-    font-weight: 400;
-    font-size: clamp(26px, 5vw, 40px);
+    font-family: 'Tourney', sans-serif;
+    font-weight: 600;
+    font-size: clamp(30px, 6vw, 48px);
     letter-spacing: 1px;
   }
 
   h2 {
     margin: 6vh 0 28px;
-    font-family: 'Silkscreen', monospace;
     font-weight: 400;
     font-size: clamp(22px, 3.6vw, 30px);
     letter-spacing: 2px;
   }
+  .h-about   { font-family: 'Bitcount Single', monospace; }
+  .h-privacy { font-family: 'Atomic Age', serif; letter-spacing: 3px; }
 
   p {
     margin: 0 0 20px;
